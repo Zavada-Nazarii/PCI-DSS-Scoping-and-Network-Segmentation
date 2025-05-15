@@ -66,6 +66,14 @@ Each command saves output in **greppable format (`-oG`)**, suitable for easy par
 
 ---
 
+## ⚗️ Observing whether scanning is working and requests are being sent
+```bash
+sudo tcpdump -ni eth0 net 0.0.0.0/16
+
+```
+
+---
+
 ## 📌 Notes
 - `--reason`: shows why a host is marked up/down (e.g. no-response, echo-reply, reset).
 - `--max-retries 1`: speeds up scanning by limiting retries.
