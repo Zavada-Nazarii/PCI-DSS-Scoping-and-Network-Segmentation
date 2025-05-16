@@ -53,6 +53,14 @@ sudo nmap -sn -n -PU53,67,69,123,161,500 --reason --max-retries 1 --host-timeout
 
 ---
 
+## ✨ ARP ping (PR)
+```bash
+sudo nmap -sn -PR --reason --max-retries 1 --host-timeout 10s 0.0.0.0/24 -oG udp_ping.gnmap
+```
+**Description**: For the most accurate detection on a local network — use ARP (-PR) ARP ping is the most reliable method if you are on the same subnet as the hosts
+
+---
+
 ## 🧰 Combined Efficient Discovery (Recommended)
 ```bash
 sudo nmap -sn -n -PE -PS22,135,445 -PU161 --reason --max-retries 1 --host-timeout 10s 0.0.0.0/24 -oG discovery_combo.gnmap
