@@ -31,18 +31,32 @@ def parse_nmap_file(file_path, mode="all", debug=False):
 
         if mode in ("all", "up"):
             report_data.append(f"[{ip}] 🟢 Host is up with open ports:")
+
+            inside_port_section = False
             for line in lines:
-                # Знайдемо всі відкриті порти: <port>/tcp  open  <service> [version (optional)]
-                port_match = re.match(r'^(\d+/tcp)\s+open\s+([\w\-\?]+)(\s+.+)?$', line.strip())
-                if port_match:
-                    port = port_match.group(1)
-                    service = port_match.group(2)
-                    version = port_match.group(3).strip() if port_match.group(3) else "N/A"
-                    report_data.append(f"    - {port:10} | {service:10} | {version}")
-                elif debug and line.strip().startswith(tuple(str(p) for p in range(10))):
-                    report_data.append(f"[DEBUG] Не вдалося розпарсити: {line.strip()}")
+                if line.strip().startswith("PORT"):
+                    inside_port_section = True
+                    continue
+                if inside_port_section:
+                    if not line.strip():
+                        break  # Кінець секції портів
+
+                    # Парсимо рядки з портами
+                    port_line_match = re.match(
+                        r'^(\d+/(tcp|udp))\s+(open|closed|filtered)\s+([^\s]+)\s*(.*)$',
+                        line.strip()
+                    )
+                    if port_line_match:
+                        port = port_line_match.group(1)
+                        state = port_line_match.group(3)
+                        service = port_line_match.group(4)
+                        version = port_line_match.group(5).strip() if port_line_match.group(5) else "N/A"
+                        report_data.append(f"    - {port:10} | {state:8} | {service:15} | {version}")
+                    elif debug and re.match(r'^\d+/', line.strip()):
+                        report_data.append(f"[DEBUG] Не вдалося розпарсити: {line.strip()}")
 
     return report_data
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -65,3 +79,4 @@ if __name__ == "__main__":
         f.write("\n".join(result))
 
     print(f"✔ Summary written to {output_file}")
+
